@@ -19,10 +19,12 @@ type PokeResponse struct {
 	} `json:"results"`
 }
 
-type PokemonResponse struct {
-	Region struct {
-		Name string `json:"name"`
-	} `json:"region"`
+type PokemonEncounters struct {
+	Encounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
 }
 
 func GetLocations(testFunc func() (*http.Response, error), url *string, config *types.Config) (PokeResponse, error) {
@@ -59,33 +61,34 @@ func GetLocations(testFunc func() (*http.Response, error), url *string, config *
 }
 
 // Gets area  from second word passes into command
-func GetPokemon(config *types.Config, area string) (PokemonResponse, error) {
+func GetPokemon(config *types.Config, area string) (PokemonEncounters, error) {
 	if len(area) == 0 {
-		return PokemonResponse{}, fmt.Errorf("ldocation undefined")
+		return PokemonEncounters{}, fmt.Errorf("location undefined")
 	}
-	baseUrl := "https://pokeapi.co/api/v2/location/"
-	var data PokemonResponse
+	baseUrl := "https://pokeapi.co/api/v2/location-area/"
+	var data PokemonEncounters
 	if res, cached := config.Cache.Get(baseUrl + area); cached {
 		json.Unmarshal(res, &data)
 		return data, nil
 	}
 	res, err := http.Get(baseUrl + area)
 	if err != nil {
-		return PokemonResponse{}, err
+		return PokemonEncounters{}, err
 	}
+	defer res.Body.Close()
 
 	parsedRes, err := io.ReadAll(res.Body)
 
 	if err != nil {
 		fmt.Println("Error occurred while reading data from response: %w", err)
-		return PokemonResponse{}, err
+		return PokemonEncounters{}, err
 	}
 	config.Cache.Add(baseUrl+area, parsedRes)
 
 	err = json.Unmarshal(parsedRes, &data)
 	if err != nil {
 		fmt.Println("Error occurred while unmarshilling data into structered response.")
-		return PokemonResponse{}, err
+		return PokemonEncounters{}, err
 	}
 	return data, nil
 

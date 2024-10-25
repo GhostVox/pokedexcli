@@ -15,7 +15,7 @@ import (
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
 	commands := cli.CliCommands()
-	startNext := "https://pokeapi.co/api/v2/location/"
+	startNext := "https://pokeapi.co/api/v2/location-area/"
 	startPrevious := ""
 	config := types.Config{
 		Next:     &startNext,

@@ -64,11 +64,15 @@ func commandExplore(config *types.Config, area string) error {
 	if area == "" {
 		return fmt.Errorf("invalid or missing location")
 	}
+	fmt.Printf("Exploring %v...\n", area)
 	res, err := pokeapi.GetPokemon(config, area)
 	if err != nil {
 		return err
 	}
-	fmt.Println(res.Region.Name)
+	fmt.Println("Found Pokemon:")
+	for _, element := range res.Encounters {
+		fmt.Printf("- %v\n", element.Pokemon.Name)
+	}
 	return nil
 }
 
