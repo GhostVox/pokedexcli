@@ -1,44 +1,43 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCleanInput(t *testing.T) {
-	test := []struct {
-		input  string
-		output []string
+	cases := []struct {
+		input    string
+		expected []string
 	}{
 		{
-			input:  "Hello",
-			output: []string{"hello"},
+			input:    "  ",
+			expected: []string{},
 		},
 		{
-			input:  "Help",
-			output: []string{"help"},
+			input:    "  hello  ",
+			expected: []string{"hello"},
 		},
 		{
-			input:  "EXIT",
-			output: []string{"exit"},
+			input:    "  hello  world  ",
+			expected: []string{"hello", "world"},
 		},
 		{
-			input: "Hello WOrld",
-			output: []string{
-				"hello",
-				"world",
-			},
+			input:    "  HellO  World  ",
+			expected: []string{"hello", "world"},
 		},
 	}
-	for _, tc := range test {
-		result := cleanInput(tc.input)
-		actual := len(result)
-		if expectedLen := len(tc.output); actual != expectedLen {
-			t.Errorf("Lengths dont match: %v vs %v", actual, expectedLen)
+
+	for _, c := range cases {
+		actual := cleanInput(c.input)
+		if len(actual) != len(c.expected) {
+			t.Errorf("lengths don't match: '%v' vs '%v'", actual, c.expected)
 			continue
 		}
-
 		for i := range actual {
-
-			if result[i] != tc.output[i] {
-				t.Errorf("cleanInput(%v)= %v, expected  %v", tc.input, result, tc.output)
+			word := actual[i]
+			expectedWord := c.expected[i]
+			if word != expectedWord {
+				t.Errorf("cleanInput(%v) == %v, expected %v", c.input, actual, c.expected)
 			}
 		}
 	}

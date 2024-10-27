@@ -5,71 +5,60 @@ import (
 	"time"
 )
 
+// Cache -
+type Cache struct {
+	cache map[string]cacheEntry
+	mux   *sync.Mutex
+}
+
 type cacheEntry struct {
 	createdAt time.Time
 	val       []byte
 }
 
-type Cache struct {
-	cacheMap map[string]cacheEntry
-	mu       *sync.Mutex
-	interval time.Duration
-	stop     chan struct{}
-}
-
-func NewCache(interval time.Duration) *Cache {
-	var newcache = Cache{
-		cacheMap: make(map[string]cacheEntry),
-		mu:       &sync.Mutex{},
-		stop:     make(chan struct{}),
-		interval: interval,
+// NewCache -
+func NewCache(interval time.Duration) Cache {
+	c := Cache{
+		cache: make(map[string]cacheEntry),
+		mux:   &sync.Mutex{},
 	}
-	go newcache.reapLoop()
-	return &newcache
+
+	go c.reapLoop(interval)
+
+	return c
 }
 
+// Add -
 func (c *Cache) Add(key string, value []byte) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if _, ok := c.cacheMap[key]; ok {
-		return
-	}
-	c.cacheMap[key] = cacheEntry{
-		createdAt: time.Now(),
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	c.cache[key] = cacheEntry{
+		createdAt: time.Now().UTC(),
 		val:       value,
 	}
 }
 
+// Get -
 func (c *Cache) Get(key string) ([]byte, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if _, ok := c.cacheMap[key]; !ok {
-		return nil, false
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	val, ok := c.cache[key]
+	return val.val, ok
+}
+
+func (c *Cache) reapLoop(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	for range ticker.C {
+		c.reap(time.Now().UTC(), interval)
 	}
-	return c.cacheMap[key].val, true
-}
-func (c *Cache) Stop() {
-	close(c.stop)
 }
 
-func (c *Cache) reapLoop() {
-	ticker := time.NewTicker(c.interval)
-	defer ticker.Stop()
-	for {
-		select {
-
-		case <-ticker.C:
-			c.mu.Lock()
-			for key, element := range c.cacheMap {
-				if t := time.Since(element.createdAt); t > c.interval {
-					delete(c.cacheMap, key)
-				}
-
-			}
-			c.mu.Unlock()
-		case <-c.stop:
-			return
+func (c *Cache) reap(now time.Time, last time.Duration) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	for k, v := range c.cache {
+		if v.createdAt.Before(now.Add(-last)) {
+			delete(c.cache, k)
 		}
-
 	}
 }
