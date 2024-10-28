@@ -13,6 +13,7 @@ type config struct {
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
+	caughtPokemon    map[string]pokeapi.PokemonInfo
 }
 
 func startRepl(cfg *config) {
@@ -30,6 +31,7 @@ func startRepl(cfg *config) {
 		args := []string{}
 		if len(words) > 1 {
 			args = words[1:]
+
 		}
 
 		command, exists := getCommands()[commandName]
@@ -64,6 +66,21 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"catch": {
+			name:        "catch <pokemon_name>",
+			description: "catch a pokemon",
+			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect <pokemon_name",
+			description: "prints out pokemons details",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Lists all pokemon in Pokedex",
+			callback:    commandpokedex,
 		},
 		"explore": {
 			name:        "explore <location_name>",
