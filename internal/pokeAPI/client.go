@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Brent-the-carpenter/pokedexcli/internal/pokecache"
+	"github.com/Ghostvox/pokedexcli/internal/pokecache"
 )
 
 // Client -
