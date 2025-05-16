@@ -1,3 +1,3 @@
-module github.com/Brent-the-carpenter/pokedexcli
+module github.com/Ghostvox/pokedexcli
 
 go 1.23.2
