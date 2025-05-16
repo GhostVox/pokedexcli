@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	pokeapi "github.com/Ghostvox/pokedexcli/internal/pokeapi"
+	pokeapi "github.com/Ghostvox/pokedexcli/internal/pokeAPI"
 )
 
 func main() {

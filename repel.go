@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Brent-the-carpenter/pokedexcli/internal/pokeapi"
+	pokeapi "github.com/Ghostvox/pokedexcli/internal/pokeAPI"
 )
 
 type config struct {
@@ -42,7 +42,7 @@ func startRepl(cfg *config) {
 			}
 			continue
 		} else {
-			fmt.Println("Unknown command")
+			fmt.Printf("Your command was: %v\n", commandName)
 			continue
 		}
 	}
